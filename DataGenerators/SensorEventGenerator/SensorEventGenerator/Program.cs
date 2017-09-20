@@ -31,7 +31,7 @@ namespace SensorEventGenerator
             config.EventHubName = ConfigurationManager.AppSettings["EventHubName"];
                         
             //To push 1 event per second
-            var eventHubevents = Observable.Interval(TimeSpan.FromSeconds(.1)).Select(i => Sensor.Generate());
+            var eventHubevents = Observable.Interval(TimeSpan.FromSeconds(.3)).Select(i => Sensor.Generate());
 
             //To send Data to EventHub as JSON
             var eventHubDis = eventHubevents.Subscribe(new EventHubObserver(config));

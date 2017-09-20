@@ -54,6 +54,21 @@ namespace SensorEventGenerator
                
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Sending" + serialisedString + " at: " + sensorData.time);
+
+                if ( sensorData.shot )
+                {
+                    Console.WriteLine($" >>> Trainer {sensorData.dspl} shot");
+                }
+
+                if ( sensorData.kill )
+                {
+                    Console.WriteLine($" >>>>>>> Trainer {sensorData.dspl} killed a target");
+                }
+
+                if ( sensorData.reachedGoal )
+                {
+                    Console.WriteLine($" >>>>>>>>>> Trainer {sensorData.dspl} reached a goal");
+                }
                 
                 //To write every event entry to the logfile, uncomment the line below. 
                 //Note: Writing every event can quickly grow the size of the log file.
