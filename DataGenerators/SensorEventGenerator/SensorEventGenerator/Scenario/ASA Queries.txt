@@ -1,0 +1,22 @@
+// update this file with any new queries.
+// 
+// note you CAN have multiple Power BI data sets
+// you CANNOT have multiple tables per data set
+// 
+// The data is streamed and kept for about an hour, so you can use Power BI realtime streaming dashboards for that.
+// The data is also stored for about an hour in the PowerBI service so that you can report on it with normal
+// Power BI/DAX tricks like measures and calculated columns.
+
+WITH theTrainerData AS (
+    SELECT
+        *
+    FROM
+        TrainerData TIMESTAMP BY time
+)
+
+SELECT * INTO [trainer-all-data] FROM theTrainerData
+
+SELECT * INTO [trainer-a-data] FROM theTrainerData WHERE dspl = 'trainerA'
+SELECT * INTO [trainer-b-data] FROM theTrainerData WHERE dspl = 'trainerB'
+SELECT * INTO [trainer-c-data] FROM theTrainerData WHERE dspl = 'trainerC'
+SELECT * INTO [trainer-d-data] FROM theTrainerData WHERE dspl = 'trainerD'

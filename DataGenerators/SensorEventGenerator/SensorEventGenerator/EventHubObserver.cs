@@ -47,33 +47,33 @@ namespace SensorEventGenerator
         {
             try
             {
-
-                var serialisedString = JsonConvert.SerializeObject(sensorData);
-                EventData data = new EventData(Encoding.UTF8.GetBytes(serialisedString)) { PartitionKey = sensorData.dspl };
-                _eventHubClient.Send(data);
-               
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Sending" + serialisedString + " at: " + sensorData.time);
-
-                if ( sensorData.shot )
+                if (sensorData != null)
                 {
-                    Console.WriteLine($" >>> Trainer {sensorData.dspl} shot");
-                }
+                    var serialisedString = JsonConvert.SerializeObject(sensorData);
+                    EventData data = new EventData(Encoding.UTF8.GetBytes(serialisedString)) { PartitionKey = sensorData.dspl };
+                    _eventHubClient.Send(data);
 
-                if ( sensorData.kill )
-                {
-                    Console.WriteLine($" >>>>>>> Trainer {sensorData.dspl} killed a target");
-                }
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Sending" + serialisedString + " at: " + sensorData.time);
 
-                if ( sensorData.reachedGoal )
-                {
-                    Console.WriteLine($" >>>>>>>>>> Trainer {sensorData.dspl} reached a goal");
-                }
-                
-                //To write every event entry to the logfile, uncomment the line below. 
-                //Note: Writing every event can quickly grow the size of the log file.
-                //_logger.Write("Sending" + serialisedString + " at: " + sensorData.TimeStamp);
+                    if (sensorData.shot)
+                    {
+                        Console.WriteLine($" >>> Trainer {sensorData.dspl} shot");
+                    }
 
+                    if (sensorData.kill)
+                    {
+                        Console.WriteLine($" >>>>>>> Trainer {sensorData.dspl} killed a target");
+                    }
+
+                    if (sensorData.reachedGoal)
+                    {
+                        Console.WriteLine($" >>>>>>>>>> Trainer {sensorData.dspl} reached a goal");
+                    }
+                    //To write every event entry to the logfile, uncomment the line below. 
+                    //Note: Writing every event can quickly grow the size of the log file.
+                    //_logger.Write("Sending" + serialisedString + " at: " + sensorData.TimeStamp);
+                }
             }
             catch (Exception ex)
             {
