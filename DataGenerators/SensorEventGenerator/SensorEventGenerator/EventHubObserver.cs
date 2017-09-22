@@ -47,7 +47,7 @@ namespace SensorEventGenerator
         {
             try
             {
-                if (sensorData != null)
+                if (sensorData.stringState == "running")
                 {
                     var serialisedString = JsonConvert.SerializeObject(sensorData);
                     EventData data = new EventData(Encoding.UTF8.GetBytes(serialisedString)) { PartitionKey = sensorData.dspl };
@@ -56,12 +56,12 @@ namespace SensorEventGenerator
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("Sending" + serialisedString + " at: " + sensorData.time);
 
-                    if (sensorData.shot)
+                    if (sensorData.shot > 0)
                     {
                         Console.WriteLine($" >>> Trainer {sensorData.dspl} shot");
                     }
 
-                    if (sensorData.kill)
+                    if (sensorData.kill > 0)
                     {
                         Console.WriteLine($" >>>>>>> Trainer {sensorData.dspl} killed a target");
                     }

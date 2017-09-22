@@ -54,6 +54,7 @@ namespace SensorEventGenerator
             Duration of scenario    // average maximum runtime
         */
         public string time;
+        public string stringState;
         public string dspl;
         public int zero = 0;           // eventually, thees may be queries
         public int top_percent = 100;  // 
@@ -63,11 +64,11 @@ namespace SensorEventGenerator
         public double runtimeSeconds;
         public double distanceSinceGoal;
         public double timeToKill;
-        public bool shot; 
+        public int shot; 
         public int aggShot;
-        public bool kill;
+        public int kill;
         public int aggKill;
-        public bool iDied;
+        public int iDied;
         public int aggiDied;
         public double x_pos;
         public double z_pos;
@@ -93,7 +94,8 @@ namespace SensorEventGenerator
 
         public static Sensor Generate()
         {
-            string sensorName = sensorNames[Rstat.Next(sensorNames.Length - 1)];
+            //            string sensorName = sensorNames[Rstat.Next(sensorNames.Length - 1)];
+            string sensorName = "trainerA";  // testing
 
             Sensor thisTrainer;
             if (_sensors.ContainsKey(sensorName))
@@ -121,48 +123,76 @@ namespace SensorEventGenerator
 
             Random Robj = thisTrainer.R;
 
+            double runtimeSecs = (timeNow - thisTrainer.startTime).TotalSeconds;
+            double deltaSecs = runtimeSecs - thisTrainer.runtimeSeconds;
+            bool isIdle = false;
+
+            thisTrainer.runtimeSeconds = runtimeSecs;
             if (thisTrainer.runtimeSeconds >= thisTrainer.resetTime)
             {
                 thisTrainer.startTime = timeNow;
                 thisTrainer.runtimeSeconds = 0.0;
+                thisTrainer.stringState = "reset";
 
                 thisTrainer.CalculateNewIdleTime(Robj);
-
-                //// hakck -- this is not working yet.. hack hack....
+            }
+            else if (thisTrainer.idleTimer > 0.0)
+            {
+                runtimeSecs = 0.0;
+                thisTrainer.idleTimer -= deltaSecs;
+                if (thisTrainer.idleTimer > 0.0)
+                {
+                    isIdle = true;
+                }
+                else
+                {
+                    isIdle = false;
+                }
             }
 
-            double runtimeSecs = (timeNow - thisTrainer.startTime).TotalSeconds;
+            if ( isIdle )
+            {
+                thisTrainer.stringState = "idle";
+                thisTrainer.InitializeTrainerStream();
 
-            double deltaSecs = runtimeSecs - thisTrainer.runtimeSeconds;
-            if ( runtimeSecs < 0.1 )
+                // return a default stream
+                return thisTrainer;
+            }
+
+            if ( runtimeSecs == 0.0 )
             {
                 thisTrainer.InitializeTrainerStream();
+
+                thisTrainer.CalcuateNewDieTime(Robj);
+                thisTrainer.CalculateNewGoalDistance(Robj);
+                thisTrainer.CalculateNewResetTime();
             }
+
+            thisTrainer.stringState = "running";
 
             double mySpeed = ((Math.Sin(runtimeSecs / 100.0)) * 2.4) + 3.2;
             double incrDist = deltaSecs * mySpeed;
 
-            bool weShot = Robj.Next(0, 100) > 80 ? true : false;
-            bool weKill = weShot & Robj.Next(0, 100) > 80 ? true : false;
+            int weShot = Robj.Next(0, 100) > 80 ? 1 : 0;
+            int weKill = weShot == 1 & Robj.Next(0, 100) > 80 ? 1 : 0;
 
-            bool iDied = runtimeSecs >= thisTrainer.dieTime;
-            if (iDied)
+            int iDied = runtimeSecs >= thisTrainer.dieTime ? 1 : 0;
+            if (iDied == 1)
             {
                 thisTrainer.CalcuateNewDieTime(Robj);
             }
 
-            thisTrainer.aggShot += weShot ? 1 : 0;
-            thisTrainer.aggKill += weKill ? 1 : 0;
+            thisTrainer.aggShot += weShot == 1 ? 1 : 0;
+            thisTrainer.aggKill += weKill == 1 ? 1 : 0;
 
             thisTrainer.iDied = iDied;
-            thisTrainer.aggiDied += iDied ? 1 : 0;
+            thisTrainer.aggiDied += iDied == 1 ? 1 : 0;
 
             thisTrainer.time = timeNow.ToString();
             thisTrainer.dspl = sensorName;
             thisTrainer.temp = Robj.Next(70, 150);
             thisTrainer.hmdt = Robj.Next(30, 70);
             thisTrainer.heartRate = (int)((Math.Sin(runtimeSecs / 58.0) * 60.0) + 120.0);
-            thisTrainer.runtimeSeconds = runtimeSecs;
             thisTrainer.incrDistance = incrDist;
             thisTrainer.distanceSinceGoal += incrDist;
             thisTrainer.shot = weShot;
@@ -198,10 +228,11 @@ namespace SensorEventGenerator
             aggiDied = 0;
             distance = 0.0;
             goalsReached = 0;
-
-            CalcuateNewDieTime(R);
-            CalculateNewGoalDistance(R);
-            CalculateNewResetTime();
+            shot = 0;
+            kill = 0;
+            heartRate = 0;
+            hmdt = 0;
+            iDied = 0;
         }
 
         private void CalculateNewResetTime()
