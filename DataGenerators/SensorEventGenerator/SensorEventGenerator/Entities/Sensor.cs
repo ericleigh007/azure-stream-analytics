@@ -64,6 +64,7 @@ namespace SensorEventGenerator
         public double runtimeSeconds;
         public double distanceSinceGoal;
         public double timeToKill;
+        public double timeToDied;
         public int shot; 
         public int aggShot;
         public int kill;
@@ -94,8 +95,8 @@ namespace SensorEventGenerator
 
         public static Sensor Generate()
         {
-            //            string sensorName = sensorNames[Rstat.Next(sensorNames.Length - 1)];
-            string sensorName = "trainerA";  // testing
+            string sensorName = sensorNames[Rstat.Next(sensorNames.Length - 1)];
+            // string sensorName = "trainerA";  // testing
 
             Sensor thisTrainer;
             if (_sensors.ContainsKey(sensorName))
@@ -176,9 +177,19 @@ namespace SensorEventGenerator
             int weShot = Robj.Next(0, 100) > 80 ? 1 : 0;
             int weKill = weShot == 1 & Robj.Next(0, 100) > 80 ? 1 : 0;
 
+            if ( (weKill > 0) && ( thisTrainer.timeToKill == 0.0 ))
+            {
+                thisTrainer.timeToKill = runtimeSecs;
+            }
+
             int iDied = runtimeSecs >= thisTrainer.dieTime ? 1 : 0;
             if (iDied == 1)
             {
+                if ( thisTrainer.timeToDied == 0.0 )
+                {
+                    thisTrainer.timeToDied = runtimeSecs;
+                }
+
                 thisTrainer.CalcuateNewDieTime(Robj);
             }
 
@@ -218,11 +229,14 @@ namespace SensorEventGenerator
 
         private void InitializeTrainerStream()
         {
+            runtimeSeconds = 0.0;
+
             x_pos = -1000.0;
             z_pos = -1000.0;
 
             distanceSinceGoal = 0.0;
             timeToKill = 0.0;
+            timeToDied = 0.0;
             aggShot = 0;
             aggKill = 0;
             aggiDied = 0;

@@ -53,27 +53,44 @@ namespace SensorEventGenerator
                     EventData data = new EventData(Encoding.UTF8.GetBytes(serialisedString)) { PartitionKey = sensorData.dspl };
                     _eventHubClient.Send(data);
 
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("Sending" + serialisedString + " at: " + sensorData.time);
+//                    Console.ForegroundColor = ConsoleColor.Yellow;
+//                    Console.WriteLine("Sending" + serialisedString + " at: " + sensorData.time);
 
                     if (sensorData.shot > 0)
                     {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine($" >>> Trainer {sensorData.dspl} shot");
                     }
 
                     if (sensorData.kill > 0)
                     {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine($" >>>>>>> Trainer {sensorData.dspl} killed a target");
                     }
 
                     if (sensorData.reachedGoal)
                     {
+                        Console.ForegroundColor = ConsoleColor.Blue;
                         Console.WriteLine($" >>>>>>>>>> Trainer {sensorData.dspl} reached a goal");
                     }
+
+                    if (sensorData.iDied > 0 )
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"  ******** Trainer {sensorData.dspl} died");
+                    }
+
                     //To write every event entry to the logfile, uncomment the line below. 
                     //Note: Writing every event can quickly grow the size of the log file.
                     //_logger.Write("Sending" + serialisedString + " at: " + sensorData.TimeStamp);
                 }
+                else if ( sensorData.stringState == "idle")
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"  zzzzzzzzz Trainer {sensorData.dspl} is currently idle and not sending");
+                }
+
+                Console.WriteLine($"  at {sensorData.time} : {sensorData.runtimeSeconds}");
             }
             catch (Exception ex)
             {
