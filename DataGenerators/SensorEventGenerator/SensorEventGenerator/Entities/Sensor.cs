@@ -56,6 +56,7 @@ namespace SensorEventGenerator
         public string time;
         public string stringState;
         public string dspl;
+        public string crewID;
         public int zero = 0;           // eventually, thees may be queries
         public int top_percent = 100;  // 
         public int temp;
@@ -87,15 +88,21 @@ namespace SensorEventGenerator
         private double idleTimer = 0.0;
 
         static Random Rstat = new Random();
-        static string[] sensorNames = new[] { "trainerA", "trainerB", "trainerC", "trainerD", "trainerE" };
+        static string[] trainerNames = new[] { "trainerA", "trainerB", "trainerC", "trainerD" };
 
         static Dictionary<string, Sensor> _sensors = new Dictionary<string, Sensor>();
+        static List<string> _userList;
 
         private DateTime startTime = DateTime.MinValue;
 
+        public static void SetUserList( List<string> users )
+        {
+            _userList = users;
+        }
+
         public static Sensor Generate()
         {
-            string sensorName = sensorNames[Rstat.Next(sensorNames.Length - 1)];
+            string sensorName = trainerNames[Rstat.Next(trainerNames.Length - 1)];
             // string sensorName = "trainerA";  // testing
 
             Sensor thisTrainer;
@@ -133,7 +140,6 @@ namespace SensorEventGenerator
             {
                 thisTrainer.startTime = timeNow;
                 thisTrainer.runtimeSeconds = 0.0;
-                thisTrainer.stringState = "reset";
 
                 thisTrainer.CalculateNewIdleTime(Robj);
             }
@@ -164,12 +170,19 @@ namespace SensorEventGenerator
             {
                 thisTrainer.InitializeTrainerStream();
 
+                thisTrainer.stringState = "reset";
+                thisTrainer.crewID = Guid.NewGuid().ToString();
+
                 thisTrainer.CalcuateNewDieTime(Robj);
                 thisTrainer.CalculateNewGoalDistance(Robj);
                 thisTrainer.CalculateNewResetTime();
-            }
 
-            thisTrainer.stringState = "running";
+                return thisTrainer;
+            }
+            else if ( runtimeSecs > 0.0)
+            {
+                thisTrainer.stringState = "running";
+            }
 
             double mySpeed = ((Math.Sin(runtimeSecs / 100.0)) * 2.4) + 3.2;
             double incrDist = deltaSecs * mySpeed;
@@ -199,7 +212,7 @@ namespace SensorEventGenerator
             thisTrainer.iDied = iDied;
             thisTrainer.aggiDied += iDied == 1 ? 1 : 0;
 
-            thisTrainer.time = timeNow.ToString();
+            thisTrainer.time = timeNow.ToString("O");
             thisTrainer.dspl = sensorName;
             thisTrainer.temp = Robj.Next(70, 150);
             thisTrainer.hmdt = Robj.Next(30, 70);

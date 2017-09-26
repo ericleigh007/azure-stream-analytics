@@ -27,8 +27,14 @@ namespace SensorEventGenerator
                   
             
             // Uncomment for picking from Configuration 
-            config.ConnectionString = ConfigurationManager.AppSettings["EventHubConnectionString"];
-            config.EventHubName = ConfigurationManager.AppSettings["EventHubName"];
+            config.ConnectionStringRT = ConfigurationManager.AppSettings["EventHubConnectionStringRT"];
+            config.EventHubNameRT = ConfigurationManager.AppSettings["EventHubRTName"];
+            config.ConnectionStringInit = ConfigurationManager.AppSettings["EventHubConnectionStringInit"];
+            config.EventHubNameInit = ConfigurationManager.AppSettings["EventHubInitName"];
+            config.credsName = ConfigurationManager.AppSettings["credsName"];
+            config.credsKkey = ConfigurationManager.AppSettings["credsKey"];
+            config.studentSite = ConfigurationManager.AppSettings["studentSite"];
+            config.studentList = ConfigurationManager.AppSettings["studentList"];
                         
             //To push 3 event per second
             var eventHubevents = Observable.Interval(TimeSpan.FromSeconds(.3)).Select(i => Sensor.Generate());

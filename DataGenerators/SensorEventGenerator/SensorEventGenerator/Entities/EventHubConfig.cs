@@ -19,8 +19,17 @@ namespace SensorEventGenerator
 {
     class EventHubConfig
     {
-        public string ConnectionString;
-        public string EventHubName;
+        public string ConnectionStringRT;
+        public string EventHubNameRT;
+
+        public string ConnectionStringInit;
+        public string EventHubNameInit;
+
+        public string credsName;
+        public string credsKkey;
+
+        public string studentSite;
+        public string studentList;
 
     }
 }
