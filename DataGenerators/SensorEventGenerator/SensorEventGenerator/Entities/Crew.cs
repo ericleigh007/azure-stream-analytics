@@ -12,6 +12,8 @@ namespace SensorEventGenerator
         public string stringState;
         public string crewID;
 
+        public int teamID;
+
         public string gunnerName;
         public string driverName;
 
@@ -28,6 +30,8 @@ namespace SensorEventGenerator
         {
             crewID = Guid.NewGuid().ToString();
             time = DateTime.UtcNow.ToString("O");
+            teamID = Rstat.Next(0, 100) > 50 ? 1 : 0;
+
             stringState = "active";
             gunnerName = "gunner" + "_" + crewID;
             driverName = "driver" + "_" + crewID;

@@ -64,10 +64,16 @@ namespace SensorEventGenerator
         public int heartRate;
         public double runtimeSeconds;
         public double distanceSinceGoal;
+        public int coll;
+        public int aggColl;
+        public double timeToShot;
+        public double timeToHit;
         public double timeToKill;
         public double timeToDied;
         public int shot; 
         public int aggShot;
+        public int hit;
+        public int aggHit;
         public int kill;
         public int aggKill;
         public int iDied;
@@ -187,8 +193,19 @@ namespace SensorEventGenerator
             double mySpeed = ((Math.Sin(runtimeSecs / 100.0)) * 2.4) + 3.2;
             double incrDist = deltaSecs * mySpeed;
 
-            int weShot = Robj.Next(0, 100) > 80 ? 1 : 0;
-            int weKill = weShot == 1 & Robj.Next(0, 100) > 80 ? 1 : 0;
+            int weShot = Robj.Next(0, 100) > 70 ? 1 : 0;
+            int weHit = weShot > 0 && Robj.Next(0, 100) > 50 ? 1 : 0;
+            int weKill = weShot > 0 && Robj.Next(0, 100) > 80 ? 1 : 0;
+
+            if ((weShot > 0) && (thisTrainer.timeToShot == 0.0))
+            {
+                thisTrainer.timeToShot = runtimeSecs;
+            }
+
+            if ((weHit > 0) && (thisTrainer.timeToHit == 0.0))
+            {
+                thisTrainer.timeToHit = runtimeSecs;
+            }
 
             if ( (weKill > 0) && ( thisTrainer.timeToKill == 0.0 ))
             {
@@ -206,8 +223,13 @@ namespace SensorEventGenerator
                 thisTrainer.CalcuateNewDieTime(Robj);
             }
 
-            thisTrainer.aggShot += weShot == 1 ? 1 : 0;
-            thisTrainer.aggKill += weKill == 1 ? 1 : 0;
+            thisTrainer.shot = weShot;
+            thisTrainer.hit = weHit;
+            thisTrainer.kill = weKill;
+
+            thisTrainer.aggShot += weShot > 0 ? 1 : 0;
+            thisTrainer.aggHit += weHit > 0 ? 1 : 0;
+            thisTrainer.aggKill += weKill > 0 ? 1 : 0;
 
             thisTrainer.iDied = iDied;
             thisTrainer.aggiDied += iDied == 1 ? 1 : 0;
@@ -219,13 +241,14 @@ namespace SensorEventGenerator
             thisTrainer.heartRate = (int)((Math.Sin(runtimeSecs / 58.0) * 60.0) + 120.0);
             thisTrainer.incrDistance = incrDist;
             thisTrainer.distanceSinceGoal += incrDist;
-            thisTrainer.shot = weShot;
-            thisTrainer.kill = weKill;
             thisTrainer.distance += incrDist;
             thisTrainer.speed = mySpeed;
             thisTrainer.x_pos += 0.707 * incrDist;
             thisTrainer.z_pos += 0.707 * incrDist;
             thisTrainer.heading_deg = 45.0;  // yes, I know this is probably not matching the X/Z incrdistance, but we are just testing
+
+            thisTrainer.coll = Robj.Next(0, 100) > 95 ? 1 : 0;
+            thisTrainer.aggColl += thisTrainer.coll;
 
             bool hitGoal = thisTrainer.distanceSinceGoal >= thisTrainer.goalDistance;
             if (hitGoal)
@@ -248,14 +271,20 @@ namespace SensorEventGenerator
             z_pos = -1000.0;
 
             distanceSinceGoal = 0.0;
+            timeToShot = 0.0;
+            timeToHit = 0.0;
             timeToKill = 0.0;
             timeToDied = 0.0;
             aggShot = 0;
+            aggHit = 0;
             aggKill = 0;
             aggiDied = 0;
+            coll = 0;
+            aggColl = 0;
             distance = 0.0;
             goalsReached = 0;
             shot = 0;
+            hit = 0;
             kill = 0;
             heartRate = 0;
             hmdt = 0;
