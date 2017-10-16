@@ -54,6 +54,8 @@ namespace SensorEventGenerator
             Duration of scenario    // average maximum runtime
         */
         public string time;
+        public string sessionStart;
+        public string sessionEnd;
         public string stringState;
         public string dspl;
         public string crewID;
